@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hệ thống phân loại rác thải</title>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    body {
+        background-color: #f4f4f4;
+    }
+
+    #header {
+        background-color: #333;
+        color: #fff;
+        padding: 20px 0;
+        text-align: center;
+    }
+
+    #image {
+        max-width: 100%;
+        height: auto;
+        border: 5px solid #fff;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-container {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin: 20px 0;
+    }
+
+    .bin {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+        transition: background-color 0.3s ease;
+    }
+
+    .bin:hover {
+        background-color: #f0f0f0;
+    }
+
+    .percentage {
+        font-size: 24px;
+        font-weight: bold;
+        color: #4CAF50;
+    }
+
+    .container {
+        margin-top: 20px;
+    }
+</style>
+</head>
+<body>
+    <div id="header">
+        <h1>Hệ thống phân loại rác thải</h1>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 text-center">
+                <img id="image" src="https://via.placeholder.com/400" alt="Hình ảnh từ MQTT">
+            </div>
+            <div class="col-md-6 info-container">
+                <h2>Thông tin</h2>
+                <p id="time">Thời gian: 2024-05-03 10:30:00</p>
+                <p id="messages">Loại rác: </p>
+                <p id="waste-name">Tên rác: Nhựa PET</p>
+                <div class="row mt-4">
+                    <div class="col-md-4 bin text-center">
+                        <h2>Rác tái chế</h2>
+                        <p class="percentage">80%</p>
+                    </div>
+                    <div class="col-md-4 bin text-center">
+                        <h2>Rác hữu cơ</h2>
+                        <p class="percentage">50%</p>
+                    </div>
+                    <div class="col-md-4 bin text-center">
+                        <h2>Rác vô cơ</h2>
+                        <p class="percentage">30%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+    <script>
+        var client = new Paho.MQTT.Client("broker.hivemq.com", Number(8000), "clientId_" + Date.now());
+
+        client.onConnectionLost = function (responseObject) {
+            if (responseObject.errorCode !== 0) {
+                console.log("Connection Lost: " + responseObject.errorMessage);
+            }
+        };
+
+        client.onMessageArrived = function (message) {
+            console.log("Message Received: " + message.payloadString);
+            displayMessage(message.payloadString);
+        };
+
+        client.connect({ onSuccess: onConnect });
+
+        function onConnect() {
+            console.log("Connected to broker");
+            client.subscribe("BTL_NHUNG");
+        }
+
+        function displayMessage(message) {
+            var messagesDiv = document.getElementById("messages");
+            var messageElement = document.createElement("div");
+            messageElement.classList.add("message");
+            messageElement.textContent = message;
+            messagesDiv.appendChild(messageElement);
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

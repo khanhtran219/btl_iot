@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hệ thống phân loại rác thải</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+
+    #header {
+        background-color: #333;
+        color: #fff;
+        padding: 20px 0;
+        text-align: center;
+    }
+
+    #container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        padding: 20px;
+    }
+
+    #image-container {
+        flex: 1;
+        padding: 20px;
+        text-align: center;
+    }
+
+    #image {
+        max-width: 100%;
+        height: auto;
+        border: 5px solid #fff;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #info-container {
+        flex: 1;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #info {
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    #bins {
+        display: flex;
+        justify-content: space-around;
+        padding: 20px 0;
+    }
+
+    .bin {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        transition: background-color 0.3s ease;
+    }
+
+    .bin:hover {
+        background-color: #f0f0f0;
+    }
+
+    h1, h2 {
+        margin-top: 0;
+    }
+
+    p {
+        margin: 5px 0;
+    }
+
+    .percentage {
+        font-size: 24px;
+        font-weight: bold;
+        color: #4CAF50; /* Màu xanh lá cây */
+    }
+</style>
+</head>
+<body>
+    <div id="header">
+        <h1>Hệ thống phân loại rác thải</h1>
+    </div>
+    <div id="container">
+        <div id="image-container">
+            <img id="image" src="https://via.placeholder.com/400" alt="Hình ảnh từ MQTT">
+        </div>
+        <div id="info-container">
+            <div id="info">
+                <h2>Thông tin</h2>
+                <p id="time">Thời gian: 2024-05-03 10:30:00</p>
+                <p id="messages">Loại rác: </p>
+                <p id="waste-name">Tên rác: Nhựa PET</p>
+            </div>
+            <div id="bins">
+                <div class="bin">
+                    <h2>Rác tái chế</h2>
+                    <p class="percentage">80%</p>
+                </div>
+                <div class="bin">
+                    <h2>Rác hữu cơ</h2>
+                    <p class="percentage">50%</p>
+                </div>
+                <div class="bin">
+                    <h2>Rác vô cơ</h2>
+                    <p class="percentage">30%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <div class="container">
+        <h1>MQTT Message Display</h1>
+        <div id="messages">Hiển thị kết quả: </div>
+    </div> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+    <script>
+        var client = new Paho.MQTT.Client("broker.hivemq.com", Number(8000), "clientId_" + Date.now());
+
+        client.onConnectionLost = function (responseObject) {
+            if (responseObject.errorCode !== 0) {
+                console.log("Connection Lost: " + responseObject.errorMessage);
+            }
+        };
+
+        client.onMessageArrived = function (message) {
+            console.log("Message Received: " + message.payloadString);
+            displayMessage(message.payloadString);
+        };
+
+        client.connect({ onSuccess: onConnect });
+
+        function onConnect() {
+            console.log("Connected to broker");
+            client.subscribe("BTL_NHUNG");
+        }
+
+        function displayMessage(message) {
+            var messagesDiv = document.getElementById("messages");
+            var messageElement = document.createElement("div");
+            messageElement.classList.add("message");
+            messageElement.textContent = message;
+            messagesDiv.appendChild(messageElement);
+        }
+    </script>
+</body>
+</html>
